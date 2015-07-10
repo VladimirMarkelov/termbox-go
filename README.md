@@ -5,6 +5,7 @@ Please, see original termbox at https://github.com/nsf/termbox-go. This modifica
 * EventMouseMove - mouse cursor changed its postion
 * EventMouseClick - the event is emitted right after EventMouseRelease if EventMouseRelease coordinates equal the last EventMousePress event
 * EventMouseScroll - mouse vertical scroll event
+
 EventMouse event is not used in Windows mode, in *nix mode EventMouse is emitted instead of EventMousePress, EventMouseRelease, and EventMouseClick.
 
 __New demo__: (./_demos/mouse_demo.go) shows you how to use the new events to create draggable objects:

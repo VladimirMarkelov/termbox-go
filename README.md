@@ -9,9 +9,11 @@ Please, see original termbox at https://github.com/nsf/termbox-go. This modifica
 EventMouse event is not used in Windows mode, in *nix mode EventMouse is emitted instead of EventMousePress, EventMouseRelease, and EventMouseClick.
 
 __New demo__: (./_demos/mouse_demo.go) shows you how to use the new events to create draggable objects:
+
 <img src="./images/mouse_demo.gif" alt="mouse_demo">
 
 One more example of the new features (window interface):
+
 <img src="./images/cli_demo.gif" alt="cli_demo">
 
 

@@ -180,4 +180,9 @@ const (
 	EventInterrupt
 	EventRaw
 	EventNone
+	EventMouseMove
+	EventMouseScroll
+	EventMousePress
+	EventMouseRelease
+	EventMouseClick
 )

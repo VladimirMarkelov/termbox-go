@@ -744,7 +744,21 @@ func input_event_producer() {
 	var r input_record
 	var err error
 	var last_button Key
-	var last_state = dword(0)
+
+	lastLeftButton := dword(0)
+	lastRightButton := dword(0)
+	lastMiddleButton := dword(0)
+	pressedX := map[Key]int{
+		MouseLeft:   -1,
+		MouseRight:  -1,
+		MouseMiddle: -1,
+	}
+	pressedY := map[Key]int{
+		MouseLeft:   -1,
+		MouseRight:  -1,
+		MouseMiddle: -1,
+	}
+
 	handles := []syscall.Handle{in, interrupt}
 	for {
 		err = wait_for_multiple_objects(handles)
@@ -763,6 +777,8 @@ func input_event_producer() {
 		if err != nil {
 			input_comm <- Event{Type: EventError, Err: err}
 		}
+
+		var clickType EventType
 
 		switch r.event_type {
 		case key_event:
@@ -787,25 +803,81 @@ func input_event_producer() {
 			switch mr.event_flags {
 			case 0:
 				cur_state := mr.button_state
-				switch {
-				case last_state&mouse_lmb == 0 && cur_state&mouse_lmb != 0:
+				currLeft := cur_state & mouse_lmb
+				currRight := cur_state & mouse_rmb
+				currMiddle := cur_state & mouse_mmb
+
+				if currLeft != lastLeftButton {
 					last_button = MouseLeft
-				case last_state&mouse_rmb == 0 && cur_state&mouse_rmb != 0:
+					if currLeft == 0 {
+						clickType = EventMouseRelease
+					} else {
+						clickType = EventMousePress
+					}
+				} else if currRight != lastRightButton {
 					last_button = MouseRight
-				case last_state&mouse_mmb == 0 && cur_state&mouse_mmb != 0:
+					if currRight == 0 {
+						clickType = EventMouseRelease
+					} else {
+						clickType = EventMousePress
+					}
+				} else if currMiddle != lastMiddleButton {
 					last_button = MouseMiddle
-				default:
-					last_state = cur_state
-					continue
+					if currMiddle == 0 {
+						clickType = EventMouseRelease
+					} else {
+						clickType = EventMousePress
+					}
 				}
-				last_state = cur_state
+
+				lastLeftButton = currLeft
+				lastRightButton = currRight
+				lastMiddleButton = currMiddle
 				fallthrough
 			case 2:
+				// sometimes switch comes here without changing clickType from default value (EventKey)
+				// so skip such cases to avoid sending invalid mouse events
+				if clickType != EventKey {
+					input_comm <- Event{
+						Type:   clickType,
+						Key:    last_button,
+						MouseX: int(mr.mouse_pos.x),
+						MouseY: int(mr.mouse_pos.y),
+					}
+					if clickType == EventMousePress {
+						pressedX[last_button] = int(mr.mouse_pos.x)
+						pressedY[last_button] = int(mr.mouse_pos.y)
+					}
+					if clickType == EventMouseRelease {
+						if pressedX[last_button] == int(mr.mouse_pos.x) &&
+							pressedY[last_button] == int(mr.mouse_pos.y) {
+							input_comm <- Event{
+								Type:   EventMouseClick,
+								Key:    last_button,
+								MouseX: int(mr.mouse_pos.x),
+								MouseY: int(mr.mouse_pos.y),
+							}
+						}
+						pressedX[last_button] = -1
+						pressedY[last_button] = -1
+					}
+				}
+			case 1:
 				input_comm <- Event{
-					Type:   EventMouse,
-					Key:    last_button,
+					Type:   EventMouseMove,
 					MouseX: int(mr.mouse_pos.x),
 					MouseY: int(mr.mouse_pos.y),
+				}
+			case 4:
+				var scroll int
+				if int16(mr.button_state>>16) < 0 {
+					scroll = 1
+				} else {
+					scroll = -1
+				}
+				input_comm <- Event{
+					Type:   EventMouseScroll,
+					MouseY: scroll,
 				}
 			}
 		}

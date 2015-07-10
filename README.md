@@ -1,21 +1,19 @@
-## Termbox
-Termbox is a library that provides a minimalistic API which allows the programmer to write text-based user interfaces. The library is crossplatform and has both terminal-based implementations on *nix operating systems and a winapi console based implementation for windows operating systems. The basic idea is an abstraction of the greatest common subset of features available on all major terminals and other terminal-like APIs in a minimalistic fashion. Small API means it is easy to implement, test, maintain and learn it, that's what makes the termbox a distinct library in its area.
+## Differnce between original Termbox and this modification
+Please, see original termbox at [github.com/nsf/termbox-go]github.com/nsf/termbox-go. This modification adds a few mouse events (currently new events are available only in Windows):
+* EventMousePress - mouse button pressed
+* EventMouseReleased - mouse button release
+* EventMouseMove - mouse cursor changed its postion
+* EventMouseClick - the event is emitted right after EventMouseRelease if EventMouseRelease coordinates equal the last EventMousePress event
+* EventMouseScroll - mouse vertical scroll event
+EventMouse event is not used in Windows mode, in *nix mode EventMouse is emitted instead of EventMousePress, EventMouseRelease, and EventMouseClick.
+
+__New demo__: (_demos/mouse_demo.go) shows you how to use the new events to create draggable objects:
+<img src="./images/mouse_demo.gif" alt="mouse_demo">
+
+One more example of the new features (window interface):
+<img src="./images/cli_demo.gif" alt="cli_demo">
+
 
 ### Installation
-Install and update this go package with `go get -u github.com/nsf/termbox-go`
+Install and update this go package with `go get -u github.com/VladimirMarkelov/termbox-go`
 
-### Examples
-For examples of what can be done take a look at demos in the _demos directory. You can try them with go run: `go run _demos/keyboard.go`
-
-There are also some interesting projects using termbox-go:
- - [godit](https://github.com/nsf/godit) is an emacsish lightweight text editor written using termbox.
- - [gomatrix](https://github.com/GeertJohan/gomatrix) connects to The Matrix and displays its data streams in your terminal.
- - [gotetris](https://github.com/jjinux/gotetris) is an implementation of Tetris.
- - [sokoban-go](https://github.com/rn2dy/sokoban-go) is an implementation of sokoban game.
- - [hecate](https://github.com/evanmiller/hecate) is a hex editor designed by Satan.
- - [httopd](https://github.com/verdverm/httopd) is top for httpd logs.
- - [mop](https://github.com/michaeldv/mop) is stock market tracker for hackers.
- - [termui](https://github.com/gizak/termui) is a terminal dashboard.
-
-### API reference
-[godoc.org/github.com/nsf/termbox-go](http://godoc.org/github.com/nsf/termbox-go)

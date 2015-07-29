@@ -605,6 +605,18 @@ func key_event_record_to_event(r *key_event_record) (Event, bool) {
 		}
 	}
 
+	var modifier Modifier = 0
+	if r.control_key_state&(left_alt_pressed|right_alt_pressed) != 0 {
+		modifier |= ModAlt
+	}
+	if r.control_key_state&(left_ctrl_pressed|right_ctrl_pressed) != 0 {
+		modifier |= ModControl
+	}
+	if r.control_key_state&shift_pressed != 0 {
+		modifier |= ModShift
+	}
+	e.Mod = modifier
+
 	ctrlpressed := r.control_key_state&(left_ctrl_pressed|right_ctrl_pressed) != 0
 
 	if r.virtual_key_code >= vk_f1 && r.virtual_key_code <= vk_f12 {

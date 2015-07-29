@@ -123,7 +123,9 @@ const (
 
 // Alt modifier constant, see Event.Mod field and SetInputMode function.
 const (
-	ModAlt Modifier = 0x01
+	ModAlt     Modifier = 0x01
+	ModShift   Modifier = 0x02
+	ModControl Modifier = 0x04
 )
 
 // Cell colors, you can combine a color with multiple attributes using bitwise
